@@ -238,7 +238,7 @@ export default function Members() {
           box-shadow: 0 4px 12px rgba(0,0,0,0.25);
         }
         .member-name { font-size: 0.975rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.15rem; }
-        .member-enroll { font-size: 0.73rem; font-family: monospace; color: rgba(200,164,92,0.65); }
+        .member-enroll { font-size: 0.73rem; font-family: monospace; color: var(--gold); font-weight: 500; }
 
         .member-action-row {
           display: flex; gap: 0.3rem;
@@ -396,13 +396,13 @@ export default function Members() {
           flex-shrink: 0;
         }
         .view-stat-card {
-          background: rgba(10,19,48,0.5);
+          background: var(--input-bg);
           backdrop-filter: blur(12px);
-          border: 1px solid rgba(200,164,92,0.15);
+          border: 1px solid var(--card-border);
           border-radius: 14px; padding: 1rem;
           text-align: center;
         }
-        .view-stat-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+        .view-stat-label { font-size: 0.72rem; color: var(--text-main); font-weight: 600; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem; }
         .view-stat-value { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 600; }
 
         .history-item {
@@ -561,8 +561,8 @@ export default function Members() {
                       </div>
                       <div>
                         <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text-main)' }}>{viewModal.data.name}</h3>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.2rem' }}>{viewModal.data.email}{viewModal.data.phone ? ` · ${viewModal.data.phone}` : ''}</p>
-                        <p style={{ color: 'rgba(200,164,92,0.6)', fontSize: '0.72rem', fontFamily: 'monospace', marginTop: '0.15rem' }}>
+                        <p style={{ color: 'var(--text-main)', opacity: 0.85, fontSize: '0.85rem', marginTop: '0.2rem' }}>{viewModal.data.email}{viewModal.data.phone ? ` · ${viewModal.data.phone}` : ''}</p>
+                        <p style={{ color: 'var(--gold)', fontSize: '0.75rem', fontWeight: 600, fontFamily: 'monospace', marginTop: '0.2rem' }}>
                           {viewModal.data.membership_id}{viewModal.data.enrollment_no ? ` · ENR: ${viewModal.data.enrollment_no}` : ''}
                         </p>
                       </div>
@@ -572,11 +572,11 @@ export default function Members() {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
                       <div className="view-stat-card">
                         <div className="view-stat-label">Books Borrowed</div>
-                        <div className="view-stat-value" style={{ color: 'var(--gold-light)' }}>{viewModal.data.transactions.length}</div>
+                        <div className="view-stat-value" style={{ color: 'var(--gold)' }}>{viewModal.data.transactions.length}</div>
                       </div>
                       <div className="view-stat-card">
                         <div className="view-stat-label">On-Time Returns</div>
-                        <div className="view-stat-value" style={{ color: '#a9c0f2' }}>{viewModal.data.transactions.filter(t => t.status === 'returned' && (t.fine_amount || 0) === 0).length}</div>
+                        <div className="view-stat-value" style={{ color: 'var(--badge-blue-text)' }}>{viewModal.data.transactions.filter(t => t.status === 'returned' && (t.fine_amount || 0) === 0).length}</div>
                       </div>
                       <div className="view-stat-card">
                         <div className="view-stat-label">Total Fines</div>
@@ -586,7 +586,7 @@ export default function Members() {
 
                     {/* History */}
                     <div>
-                      <h4 style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Borrowing History</h4>
+                      <h4 style={{ marginBottom: '0.75rem', fontSize: '0.95rem', color: 'var(--text-main)', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Borrowing History</h4>
                       {viewModal.data.transactions.length === 0 ? (
                         <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No borrowing history yet.</p>
                       ) : (

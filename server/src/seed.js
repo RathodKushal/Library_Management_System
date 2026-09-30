@@ -15,7 +15,7 @@ async function seed() {
 
   // 1. Librarians
   run('INSERT INTO librarians (name, email, password_hash, role) VALUES (?, ?, ?, ?)',
-    ['Admin Librarian', 'admin@gmail.com', bcrypt.hashSync('admin123', 10), 'admin']);
+    ['Admin', 'admin@gmail.com', bcrypt.hashSync('admin123', 10), 'admin']);
   run('INSERT INTO librarians (name, email, password_hash, role) VALUES (?, ?, ?, ?)',
     ['Priya Sharma', 'priya@reactra.edu', bcrypt.hashSync('librarian123', 10), 'librarian']);
   console.log('  ✅ Librarians created (admin@gmail.com / admin123)');

@@ -231,7 +231,7 @@ export default function Sidebar() {
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     margin: 0
-                  }}>{user.name}</p>
+                  }}>{user.name?.replace(' Librarian', '')}</p>
                   <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0 }}>{user.role}</p>
                 </div>
               </div>
