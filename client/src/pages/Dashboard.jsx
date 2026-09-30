@@ -23,18 +23,18 @@ function AnimatedCounter({ value, duration = 1.5, prefix = '' }) {
   return <span>{prefix}{count}</span>;
 }
 
-function StatCard({ icon: Icon, label, value, prefix = '' }) {
+function StatCard({ icon: Icon, label, value, prefix = '', danger = false }) {
   return (
     <motion.div variants={fadeUp} className="folio-card stat-card-hover stat-card-layout">
-      <div className="stat-icon-wrapper">
-        <Icon size={24} weight="duotone" color="var(--gold)" />
+      <div className="stat-icon-wrapper" style={danger ? { background: 'rgba(255, 77, 109, 0.1)', borderColor: 'rgba(255, 77, 109, 0.2)' } : {}}>
+        <Icon size={24} weight="duotone" color={danger ? 'var(--danger)' : 'var(--gold)'} />
       </div>
       <div>
         <div className="stat-value heading-font"><AnimatedCounter value={value} prefix={prefix} /></div>
         <div className="stat-label">{label}</div>
       </div>
       {/* Decorative background glow */}
-      <div className="card-glow"></div>
+      <div className="card-glow" style={danger ? { background: 'radial-gradient(circle, rgba(255, 77, 109, 0.15) 0%, transparent 70%)' } : {}}></div>
     </motion.div>
   );
 }
@@ -60,7 +60,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '60vh' }}>
-        <div className="animate-spin" style={{ width: 40, height: 40, border: '3px solid rgba(200, 164, 92, 0.2)', borderTopColor: '#c8a45c', borderRadius: '50%' }}></div>
+        <div className="animate-spin" style={{ width: 40, height: 40, border: '3px solid rgba(200, 164, 92, 0.2)', borderTopColor: 'var(--gold)', borderRadius: '50%' }}></div>
       </div>
     );
   }
@@ -76,15 +76,15 @@ export default function Dashboard() {
           --navy-primary: #1f3a6e;
           --navy-deep: #12264f;
           --navy-steel: #4a6aa8;
-          --gold: #c8a45c;
-          --gold-light: #e3cb96;
-          --text-main: #f6f2e8;
-          --text-muted: #a9b6d4;
-          --card-bg: rgba(18, 38, 79, 0.5);
+          
+          
+          
+          
+          
           --card-border: rgba(200, 164, 92, 0.2);
           
           font-family: 'Plus Jakarta Sans', sans-serif;
-          background: linear-gradient(135deg, #0a1330, #14244d);
+          background: linear-gradient(135deg, var(--page-bg-start), var(--page-bg-end));
           border-radius: 24px;
           padding: 2.5rem;
           color: var(--text-main);
@@ -124,9 +124,9 @@ export default function Dashboard() {
         .dashboard-title {
           font-size: 2.5rem;
           font-weight: 500;
-          color: var(--gold-light);
+          color: var(--gold);
           margin-bottom: 0.5rem;
-          background: linear-gradient(135deg, #f0dba8, #c8a45c);
+          background: linear-gradient(135deg, var(--text-main), var(--gold));
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
@@ -137,23 +137,33 @@ export default function Dashboard() {
 
         .folio-card {
           background: var(--card-bg);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
+          backdrop-filter: blur(24px) saturate(1.6);
+          -webkit-backdrop-filter: blur(24px) saturate(1.6);
           border: 1px solid var(--card-border);
           border-radius: 20px;
           padding: 1.5rem;
           position: relative;
           overflow: hidden;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255,255,255,0.07);
           z-index: 2;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
+        /* Gold shimmer top line */
         .folio-card::before {
           content: '';
           position: absolute;
           top: 0; left: 0; right: 0; height: 1px;
-          background: linear-gradient(90deg, transparent, var(--gold), transparent);
-          opacity: 0.3;
+          background: linear-gradient(90deg, transparent, rgba(200,164,92,0.6), transparent);
+          opacity: 0.5;
+        }
+        /* Inset glass inner glow */
+        .folio-card::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 20px;
+          box-shadow: inset 0 0 30px rgba(255,255,255,0.03);
+          pointer-events: none;
         }
         
         .stat-card-layout {
@@ -227,7 +237,7 @@ export default function Dashboard() {
         .folio-table td {
           padding: 1.25rem 1rem;
           color: var(--text-main);
-          border-bottom: 1px solid rgba(255,255,255,0.03);
+          border-bottom: 1px solid var(--sidebar-border);
           font-size: 0.95rem;
         }
         .folio-table tr:hover td {
@@ -244,17 +254,17 @@ export default function Dashboard() {
         }
         .folio-badge-warning {
           background: rgba(200, 164, 92, 0.15);
-          color: var(--gold-light);
+          color: var(--gold);
           border: 1px solid rgba(200, 164, 92, 0.3);
         }
         .folio-badge-success {
-          background: rgba(74, 106, 168, 0.2);
-          color: #a9c0f2;
-          border: 1px solid rgba(74, 106, 168, 0.4);
+          background: var(--badge-blue-bg);
+          color: var(--badge-blue-text);
+          border: 1px solid var(--badge-blue-border);
         }
         .folio-badge-danger {
           background: rgba(231, 29, 54, 0.15);
-          color: #ff4d6d;
+          color: var(--danger);
           border: 1px solid rgba(231, 29, 54, 0.3);
         }
 
@@ -264,8 +274,8 @@ export default function Dashboard() {
           gap: 0.75rem;
           margin-bottom: 1.5rem;
           font-size: 1.25rem;
-          color: var(--gold-light);
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+          color: var(--gold);
+          border-bottom: 1px solid var(--sidebar-border);
           padding-bottom: 1rem;
         }
         
@@ -302,7 +312,7 @@ export default function Dashboard() {
         <StatCard icon={Books} label="Total Titles" value={stats.totalBooks} />
         <StatCard icon={Users} label="Registered Students" value={stats.totalMembers} />
         <StatCard icon={ArrowsLeftRight} label="Active Issues" value={stats.activeIssues} />
-        <StatCard icon={Warning} label="Overdue Books" value={stats.overdueBooks} />
+        <StatCard icon={Warning} label="Overdue Books" value={stats.overdueBooks} danger={true} />
       </motion.div>
 
       {/* KPI Cards Row 2 */}
@@ -376,7 +386,7 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div variants={fadeUp} initial="hidden" animate="show" className="folio-card" style={{
-            background: 'linear-gradient(135deg, rgba(200, 164, 92, 0.1), rgba(18, 38, 79, 0.4))',
+            background: 'linear-gradient(135deg, rgba(200, 164, 92, 0.1), var(--card-bg))',
             borderColor: 'rgba(200, 164, 92, 0.3)'
           }}>
             <h4 className="card-header heading-font" style={{ borderBottom: 'none', marginBottom: '0.5rem', color: 'var(--text-main)' }}>
@@ -388,7 +398,7 @@ export default function Dashboard() {
               <strong style={{ color: 'var(--gold-light)' }}>{stats.totalCategories}</strong> distinct collections, serving{' '}
               <strong style={{ color: 'var(--gold-light)' }}>{stats.activeMembers}</strong> active readers.
               {stats.overdueBooks > 0 && (
-                <span style={{ color: '#ff4d6d', display: 'block', marginTop: '0.75rem', fontWeight: 500 }}>
+                <span style={{ color: 'var(--danger)', display: 'block', marginTop: '0.75rem', fontWeight: 500 }}>
                   Attention: {stats.overdueBooks} book(s) are currently overdue.
                 </span>
               )}

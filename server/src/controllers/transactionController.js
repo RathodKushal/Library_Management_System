@@ -5,13 +5,42 @@ import { sendIssueEmail } from '../utils/mailer.js';
 export function getAllTransactions(req, res, next) {
   try {
     const { page, limit, offset } = getPagination(req.query);
-    const { status, member_id, book_id } = req.query;
+    const { status, member_id, book_id, search } = req.query;
     let where = '1=1'; const params = [];
+    
     if (status) { where += ' AND t.status = ?'; params.push(status); }
     if (member_id) { where += ' AND t.member_id = ?'; params.push(Number(member_id)); }
     if (book_id) { where += ' AND t.book_id = ?'; params.push(Number(book_id)); }
-    const { total } = queryOne(`SELECT COUNT(*) as total FROM transactions t WHERE ${where}`, params) || { total: 0 };
-    const transactions = queryAll(`SELECT t.*, b.title as book_title, b.author as book_author, b.isbn as book_isbn, m.name as member_name, m.membership_id as member_membership_id, l.name as librarian_name FROM transactions t JOIN books b ON t.book_id = b.id JOIN members m ON t.member_id = m.id JOIN librarians l ON t.issued_by = l.id WHERE ${where} ORDER BY t.created_at DESC LIMIT ? OFFSET ?`, [...params, limit, offset]);
+    
+    if (search) {
+      where += ' AND (b.title LIKE ? OR m.name LIKE ? OR m.membership_id LIKE ? OR CAST(t.id AS TEXT) LIKE ?)';
+      const searchTerm = `%${search}%`;
+      params.push(searchTerm, searchTerm, searchTerm, searchTerm);
+    }
+    
+    const countQuery = `
+      SELECT COUNT(*) as total 
+      FROM transactions t 
+      JOIN books b ON t.book_id = b.id 
+      JOIN members m ON t.member_id = m.id 
+      WHERE ${where}
+    `;
+    const { total } = queryOne(countQuery, params) || { total: 0 };
+    
+    const dataQuery = `
+      SELECT t.*, 
+             b.title as book_title, b.author as book_author, b.isbn as book_isbn, 
+             m.name as member_name, m.membership_id as member_membership_id, 
+             l.name as librarian_name 
+      FROM transactions t 
+      JOIN books b ON t.book_id = b.id 
+      JOIN members m ON t.member_id = m.id 
+      JOIN librarians l ON t.issued_by = l.id 
+      WHERE ${where} 
+      ORDER BY t.created_at DESC 
+      LIMIT ? OFFSET ?
+    `;
+    const transactions = queryAll(dataQuery, [...params, limit, offset]);
     res.json({ success: true, data: transactions, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
   } catch (error) { next(error); }
 }

@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { transactionsAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { Warning, ArrowBendUpLeft, SpinnerGap, Clock } from '@phosphor-icons/react';
+import { Warning, ArrowBendUpLeft, SpinnerGap, Clock, Phone, User, Book, } from '@phosphor-icons/react';
 
 export default function Overdue() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [returning, setReturning] = useState(null);
-
   const fetchOverdue = async () => {
     setLoading(true);
     try { const res = await transactionsAPI.getOverdue(); setTransactions(res.data.data); }
@@ -24,60 +23,202 @@ export default function Overdue() {
     finally { setReturning(null); }
   };
 
+  const stagger = { show: { transition: { staggerChildren: 0.05 } } };
+  const fadeUp = { hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0, transition: { duration: 0.3 } } };
+
   return (
-    <div className="page">
+    <div className="folio-overdue-page">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&family=Plus+Jakarta+Sans:wght@200..800&display=swap');
+
+        .folio-overdue-page {
+          
+          
+          --navy-primary: #1f3a6e;
+          --navy-mid: #2c4c8c;
+          
+          
+          
+          
+          
+          --danger-bg: rgba(255, 77, 109, 0.06);
+
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          background: linear-gradient(135deg, var(--page-bg-start), var(--page-bg-end));
+          border-radius: 24px;
+          padding: 2.5rem;
+          color: var(--text-main);
+          min-height: calc(100vh - 6rem);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .folio-overdue-page::before {
+          content: '';
+          position: absolute; top: -15%; right: -10%;
+          width: 45%; height: 50%;
+          background: radial-gradient(circle, rgba(255,77,109,0.08) 0%, transparent 70%);
+          pointer-events: none;
+        }
+
+        .page-header {
+          margin-bottom: 2rem; position: relative; z-index: 2;
+        }
+        .page-title {
+          font-family: 'Fraunces', serif;
+          font-size: 1.75rem; font-weight: 500; margin: 0;
+          display: flex; align-items: center; gap: 0.6rem;
+          color: var(--danger);
+        }
+
+        .overdue-card {
+          background: var(--card-bg);
+          backdrop-filter: blur(24px) saturate(1.5);
+          -webkit-backdrop-filter: blur(24px) saturate(1.5);
+          border: 1px solid rgba(255,77,109,0.3);
+          border-left: 4px solid var(--danger);
+          border-radius: 16px;
+          padding: 1.25rem 1.5rem;
+          margin-bottom: 0.875rem;
+          position: relative; overflow: hidden;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+          display: flex; justify-content: space-between; align-items: center;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .overdue-card::after {
+          content: ''; position: absolute; inset: 0;
+          background: linear-gradient(90deg, rgba(255,77,109,0.05), transparent);
+          pointer-events: none;
+        }
+        .overdue-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 30px rgba(255,77,109,0.15);
+        }
+
+        .card-content { display: flex; align-items: center; gap: 2rem; flex: 1; margin-left: 0.5rem; }
+
+        .book-info { min-width: 200px; }
+        .b-title { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; font-size: 1rem; color: var(--text-main); margin-bottom: 0.25rem; }
+        .b-author { font-size: 0.82rem; color: var(--text-muted); padding-left: 1.5rem; }
+
+        .user-info { min-width: 180px; }
+        .u-name { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.2rem; }
+        .u-id { font-family: monospace; font-size: 0.75rem; color: rgba(200,164,92,0.6); padding-left: 1.5rem; }
+
+        .due-info { text-align: center; min-width: 120px; }
+        .due-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.15rem; }
+        .due-date { font-size: 0.95rem; font-weight: 600; font-family: monospace; color: var(--danger); }
+
+        .days-badge {
+          display: flex; align-items: center; gap: 0.3rem;
+          padding: 0.35rem 0.875rem; border-radius: 100px;
+          font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+          background: rgba(255,77,109,0.15); color: var(--danger); border: 1px solid rgba(255,77,109,0.3);
+        }
+
+        .action-area { display: flex; align-items: center; gap: 1.25rem; }
+        .phone-text { display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: var(--text-muted); }
+
+        .folio-return-btn {
+          display: flex; align-items: center; gap: 0.5rem;
+          padding: 0.65rem 1.25rem;
+          background: rgba(255,77,109,0.1); border: 1px solid rgba(255,77,109,0.3);
+          border-radius: 12px; color: var(--danger);
+          font-family: inherit; font-weight: 600; font-size: 0.9rem;
+          cursor: pointer; transition: all 0.2s; white-space: nowrap;
+        }
+        .folio-return-btn:hover:not(:disabled) { background: var(--danger); color: white; box-shadow: 0 4px 15px rgba(255,77,109,0.4); }
+        .folio-return-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .folio-skeleton {
+          background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+          background-size: 200% 100%; animation: shimmer 1.5s infinite;
+          border-radius: 16px; height: 95px; margin-bottom: 0.875rem;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .folio-empty {
+          background: rgba(52,211,153,0.05); border: 1px solid rgba(52,211,153,0.2);
+          border-radius: 20px; padding: 4rem 2rem; text-align: center; position: relative; z-index: 2;
+        }
+        
+        
+
+        .folio-empty h3 { color: #34d399; font-family: 'Fraunces', serif; font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .folio-empty p { color: var(--text-muted); }
+
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
+
       <div className="page-header">
-        <div>
-          <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Warning size={28} weight="duotone" color="var(--danger)" /> Overdue Books
-          </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>{transactions.length} book(s) past due date</p>
-        </div>
+        <h1 className="page-title">
+          <Warning size={28} weight="duotone" /> Overdue Books
+        </h1>
+        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
+          {transactions.length} book(s) past their due date
+        </p>
       </div>
 
       {loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 90, borderRadius: 'var(--radius-lg)' }} />)}
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          {[1,2,3].map(i => <div key={i} className="folio-skeleton" />)}
         </div>
       ) : transactions.length === 0 ? (
-        <div className="empty-state" style={{ background: 'var(--success-bg)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(52,211,153,0.2)' }}>
-          <h3 style={{ color: 'var(--success)' }}>No overdue books!</h3>
+        <div className="folio-empty">
+          <h3>No overdue books!</h3>
           <p>All issued books are within their due dates.</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <motion.div variants={stagger} initial="hidden" animate="show" style={{ position: 'relative', zIndex: 2 }}>
           {transactions.map(t => (
-            <motion.div key={t.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="card"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderLeft: '3px solid var(--danger)', background: 'rgba(248, 113, 113, 0.03)' }}>
-              <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flex: 1 }}>
-                <div>
-                  <h4 style={{ fontSize: '0.9375rem' }}>{t.book_title}</h4>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>{t.book_author}</p>
+            <motion.div key={t.id} variants={fadeUp} className="overdue-card">
+              <div className="card-content">
+                <div className="book-info">
+                  <div className="b-title">
+                    <Book size={16} color="var(--danger)" />
+                    {t.book_title}
+                  </div>
+                  <div className="b-author">{t.book_author}</div>
                 </div>
-                <div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Student</p>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 500 }}>{t.member_name}</p>
-                  <p style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-dim)' }}>{t.member_membership_id}</p>
+
+                <div className="user-info">
+                  <div className="u-name">
+                    <User size={14} color="var(--text-muted)" />
+                    {t.member_name}
+                  </div>
+                  <div className="u-id">{t.member_membership_id}</div>
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Due Date</p>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--danger)', fontWeight: 600 }}>{new Date(t.due_date).toLocaleDateString()}</p>
+
+                <div className="due-info">
+                  <div className="due-label">Due Date</div>
+                  <div className="due-date">{new Date(t.due_date).toLocaleDateString()}</div>
                 </div>
-                <span className="badge badge-danger" style={{ fontSize: '0.8125rem', padding: '0.375rem 0.75rem' }}>
-                  <Clock size={14} style={{ marginRight: '0.25rem' }} />
+
+                <div className="days-badge">
+                  <Clock size={14} />
                   {t.days_overdue} days overdue
-                </span>
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                {t.member_phone && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t.member_phone}</span>}
-                <motion.button className="btn btn-danger" whileTap={{ scale: 0.97 }} onClick={() => handleReturn(t)} disabled={returning === t.id}>
-                  {returning === t.id ? <SpinnerGap size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <><ArrowBendUpLeft size={18} /> Return</>}
-                </motion.button>
+
+              <div className="action-area">
+                {t.member_phone && (
+                  <div className="phone-text">
+                    <Phone size={14} /> {t.member_phone}
+                  </div>
+                )}
+                <button className="folio-return-btn" onClick={() => handleReturn(t)} disabled={returning === t.id}>
+                  {returning === t.id 
+                    ? <SpinnerGap size={18} className="spin" /> 
+                    : <><ArrowBendUpLeft size={18} weight="bold" /> Return</>
+                  }
+                </button>
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
+
     </div>
   );
 }

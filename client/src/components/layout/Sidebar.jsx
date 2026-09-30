@@ -13,13 +13,15 @@ import {
   CaretLeft,
   BookOpen,
   Warning,
-  Gear
+  Gear,
+  Sun,
+  Moon
 } from '@phosphor-icons/react';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: House },
   { path: '/books', label: 'Books', icon: Books },
-  { path: '/categories', label: 'Categories', icon: Tag },
+  { path: '/categories', label: 'Collections', icon: Tag },
   { path: '/members', label: 'Students', icon: Users },
   { path: '/issue', label: 'Issue Book', icon: BookOpen },
   { path: '/return', label: 'Return Book', icon: ArrowsLeftRight },
@@ -31,25 +33,38 @@ const navItems = [
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const [theme, setTheme] = useState(document.body.getAttribute('data-theme') || 'dark');
   const { user, logout } = useAuth();
   const location = useLocation();
+
+  // Ensure body has the data-theme
+  if (typeof document !== 'undefined') {
+    document.body.setAttribute('data-theme', theme);
+  }
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   return (
     <motion.aside
       className="sidebar"
-      animate={{ width: collapsed ? 72 : 260 }}
+      animate={{ width: collapsed ? 78 : 260 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
         height: '100dvh',
-        background: 'var(--bg-surface)',
-        borderRight: '1px solid var(--border)',
+        background: 'var(--sidebar-bg)',
+        backdropFilter: 'blur(24px) saturate(2.0)',
+        WebkitBackdropFilter: 'blur(24px) saturate(2.0)',
+        borderRight: '1px solid var(--sidebar-border)',
         display: 'flex',
         flexDirection: 'column',
         zIndex: 100,
         overflow: 'hidden',
+        boxShadow: '4px 0 24px rgba(0,0,0,0.25)',
       }}
     >
       {/* Logo */}
@@ -57,21 +72,22 @@ export default function Sidebar() {
         padding: collapsed ? '1.25rem 0.75rem' : '1.25rem 1.25rem',
         display: 'flex',
         alignItems: 'center',
-        gap: '0.75rem',
-        borderBottom: '1px solid var(--border)',
-        minHeight: '64px',
+        gap: '0.85rem',
+        borderBottom: '1px solid var(--sidebar-border)',
+        minHeight: '72px',
       }}>
         <div style={{
-          width: 36,
-          height: 36,
-          borderRadius: 'var(--radius-md)',
-          background: 'linear-gradient(135deg, var(--primary), var(--accent))',
+          width: 38,
+          height: 38,
+          borderRadius: '12px',
+          background: 'linear-gradient(135deg, #1f3a6e, #4a6aa8)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
+          boxShadow: '0 4px 12px rgba(31,58,110,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
         }}>
-          <Books size={20} weight="bold" color="white" />
+          <Books size={22} weight="bold" color="white" />
         </div>
         <AnimatePresence>
           {!collapsed && (
@@ -82,13 +98,15 @@ export default function Sidebar() {
               transition={{ duration: 0.2 }}
             >
               <h4 style={{ 
-                fontFamily: 'var(--font-display)', 
-                fontSize: '1.125rem',
-                letterSpacing: '-0.02em',
+                fontFamily: '"Fraunces", serif', 
+                fontSize: '1.25rem',
+                fontWeight: 600,
+                letterSpacing: '0.02em',
                 whiteSpace: 'nowrap',
-                background: 'linear-gradient(135deg, var(--primary-light), var(--accent))',
+                background: 'linear-gradient(135deg, var(--text-main), var(--text-muted))',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
+                margin: 0
               }}>
                 LJKU Library
               </h4>
@@ -98,8 +116,8 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav style={{ flex: 1, padding: '0.75rem', overflowY: 'auto' }}>
-        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+      <nav style={{ flex: 1, padding: '1rem 0.75rem', overflowY: 'auto' }}>
+        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.35rem', padding: 0, margin: 0 }}>
           {navItems.map((item) => {
             const isActive = item.path === '/' 
               ? location.pathname === '/' 
@@ -113,62 +131,47 @@ export default function Sidebar() {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: collapsed ? '0.625rem' : '0.625rem 0.875rem',
-                    borderRadius: 'var(--radius-md)',
-                    color: isActive ? 'var(--primary-light)' : 'var(--text-secondary)',
-                    background: isActive ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-                    transition: 'all 150ms ease',
+                    gap: '0.85rem',
+                    padding: collapsed ? '0.75rem' : '0.75rem 1rem',
+                    borderRadius: '12px',
+                    color: isActive ? 'var(--text-main)' : 'var(--text-muted)',
+                    background: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
+                    borderLeft: isActive ? '3px solid var(--gold)' : '3px solid transparent',
+                    borderLeftWidth: collapsed ? 0 : (isActive ? 3 : 0),
+                    transition: 'all 0.2s ease',
                     textDecoration: 'none',
-                    fontSize: '0.875rem',
-                    fontWeight: isActive ? 600 : 400,
+                    fontSize: '0.9rem',
+                    fontWeight: isActive ? 600 : 500,
                     justifyContent: collapsed ? 'center' : 'flex-start',
                     position: 'relative',
                     cursor: 'pointer',
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = 'var(--glass-highlight)';
-                      e.currentTarget.style.color = 'var(--text-primary)';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                      e.currentTarget.style.color = 'var(--text-main)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isActive) {
                       e.currentTarget.style.background = 'transparent';
-                      e.currentTarget.style.color = 'var(--text-secondary)';
+                      e.currentTarget.style.color = 'var(--text-muted)';
                     }
                   }}
                 >
-                  <Icon size={20} weight={isActive ? 'fill' : 'regular'} />
+                  <Icon size={22} weight={isActive ? 'duotone' : 'regular'} color={isActive ? 'var(--gold)' : 'var(--text-muted)'} />
                   <AnimatePresence>
                     {!collapsed && (
                       <motion.span
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
+                        exit={{ opacity: 0, transition: { duration: 0.1 } }}
                         style={{ whiteSpace: 'nowrap' }}
                       >
                         {item.label}
                       </motion.span>
                     )}
                   </AnimatePresence>
-                  {isActive && (
-                    <motion.div
-                      layoutId="sidebar-active-indicator"
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        width: 3,
-                        height: 20,
-                        borderRadius: 'var(--radius-full)',
-                        background: 'var(--primary)',
-                      }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                    />
-                  )}
                 </NavLink>
               </li>
             );
@@ -178,81 +181,107 @@ export default function Sidebar() {
 
       {/* User & Collapse */}
       <div style={{ 
-        padding: '0.75rem', 
-        borderTop: '1px solid var(--border)',
+        padding: '1rem 0.75rem', 
+        borderTop: '1px solid var(--sidebar-border)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.5rem',
+        gap: '0.75rem',
+        background: 'rgba(0,0,0,0.1)',
       }}>
         {/* User info */}
-        {!collapsed && user && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            style={{
-              padding: '0.625rem',
-              borderRadius: 'var(--radius-md)',
-              background: 'var(--glass-highlight)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-            }}
-          >
-            <div style={{
-              width: 32,
-              height: 32,
-              borderRadius: 'var(--radius-full)',
-              background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '0.8125rem',
-              fontWeight: 700,
-              color: 'white',
-              flexShrink: 0,
-            }}>
-              {user.name?.charAt(0).toUpperCase()}
-            </div>
-            <div style={{ overflow: 'hidden' }}>
-              <p style={{ 
-                fontSize: '0.8125rem', 
-                fontWeight: 600, 
-                color: 'var(--text-primary)',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}>{user.name}</p>
-              <p style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>{user.role}</p>
-            </div>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {!collapsed && user && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0, transition: { duration: 0.1 } }}
+              style={{ overflow: 'hidden' }}
+            >
+              <div style={{
+                padding: '0.75rem',
+                borderRadius: '14px',
+                background: 'var(--sidebar-hover)',
+                border: '1px solid var(--sidebar-border)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+              }}>
+                <div style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #1f3a6e, #4a6aa8)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  color: 'white',
+                  flexShrink: 0,
+                }}>
+                  {user.name?.charAt(0).toUpperCase()}
+                </div>
+                <div style={{ overflow: 'hidden' }}>
+                  <p style={{ 
+                    fontSize: '0.85rem', 
+                    fontWeight: 600, 
+                    color: 'var(--text-main)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    margin: 0
+                  }}>{user.name}</p>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0 }}>{user.role}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexDirection: collapsed ? 'column' : 'row' }}>
           <button
             onClick={logout}
-            className="btn btn-ghost"
             style={{ 
               flex: collapsed ? 'none' : 1,
               justifyContent: collapsed ? 'center' : 'flex-start',
               color: 'var(--danger)',
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.65rem', borderRadius: '10px',
+              border: '1px solid transparent', background: 'transparent',
+              cursor: 'pointer', transition: 'all 0.2s',
+              fontFamily: 'inherit', fontSize: '0.85rem'
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,77,109,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,77,109,0.2)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
             title="Logout"
           >
-            <SignOut size={18} />
-            {!collapsed && <span style={{ fontSize: '0.8125rem' }}>Logout</span>}
+            <SignOut size={20} />
+            <AnimatePresence>
+              {!collapsed && (
+                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.1 } }} style={{ whiteSpace: 'nowrap' }}>
+                  Logout
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
+          
           <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="btn btn-ghost"
-            style={{ padding: '0.5rem' }}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            onClick={toggleTheme}
+            style={{ 
+              justifyContent: 'center', 
+              padding: collapsed ? '0.65rem' : '0.65rem 0.5rem',
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              borderRadius: '10px',
+              border: '1px solid transparent', background: 'transparent',
+              cursor: 'pointer', transition: 'all 0.2s',
+              color: 'var(--text-muted)'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--sidebar-hover)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
-            <motion.div
-              animate={{ rotate: collapsed ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <CaretLeft size={16} />
-            </motion.div>
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </div>
       </div>
